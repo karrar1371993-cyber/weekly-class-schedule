@@ -40,7 +40,7 @@ td.cell{height:88px;padding:4px;vertical-align:top}.cell input{border:0;border-b
 <div><label>اسم المدرسة</label><input id="school"></div>
 <div><label>العام الدراسي</label><input id="year"></div>
 <div><label>الصف</label><input id="grade"></div>
-<div><label>الشعبة</label><select id="section"></select></div>
+<div><label>الصف / الشعبة</label><select id="section"></select></div>
 </div>
 <div class="toolbar">
 <button class="primary" onclick="window.print()">🖨️ طباعة الشعبة</button>
@@ -84,12 +84,12 @@ td.cell{height:88px;padding:4px;vertical-align:top}.cell input{border:0;border-b
 
 <script>
 const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], L=6, N=9;
+const CLASS_NAMES=['الصف الأول أ','الصف الثاني أ','الصف الثالث أ','الصف الرابع أ','الصف الرابع ب','الصف الخامس أ','الصف الخامس ب','الصف السادس أ','الصف السادس ب'];
 const KEY='weekly_schedule_pro_v2';
 const defaults=['الرياضيات','اللغة العربية','اللغة الإنكليزية','العلوم','الاجتماعيات','التربية الإسلامية','التربية الفنية','الرياضة'];
-const names=['أ','ب','ج','د','هـ','و','ز','ح','ط'];
 let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
- school:'',year:'٢٠٢٦ - ٢٠٢٧',grade:'الصف الخامس',
- sections:names.map(x=>'الشعبة '+x), subjects:[...defaults], teachers:[],
+ school:'',year:'٢٠٢٦ - ٢٠٢٧',grade:'',
+ sections:[...CLASS_NAMES], subjects:[...defaults], teachers:[],
  tables:{}, clipboard:null
 };
 const blank=()=>Array.from({length:L},()=>Array.from({length:5},()=>({subject:'',teacher:''})));
