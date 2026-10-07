@@ -27,7 +27,7 @@ td.cell{height:88px;padding:4px;vertical-align:top}.cell input{border:0;border-b
 .row{display:flex;gap:7px;margin:6px 0}.row>*{flex:1}
 @media(max-width:850px){.grid,.layout{grid-template-columns:1fr 1fr}}
 @media print{
- @page{size:A4 landscape;margin:7mm}body{background:#fff}.no-print{display:none!important}.app{padding:0;max-width:none}.card{box-shadow:none;border:0;padding:0;margin:0 0 5mm}.print-head{display:block!important}table{min-width:0;font-size:9px}th{padding:5px;font-size:9px}td.cell{height:62px}.cell input{font-size:8px;padding:2px}td.lesson{width:30px}
+ @page{size:A4 landscape;margin:7mm}html,body{width:297mm;min-height:210mm;margin:0}body{background:#fff}.no-print{display:none!important}.app{padding:0;max-width:none}.card{box-shadow:none;border:0;padding:0;margin:0 0 5mm}.print-head{display:block!important}table{min-width:0;font-size:9px}th{padding:5px;font-size:9px}td.cell{height:62px}.cell input{font-size:8px;padding:2px}td.lesson{width:30px}
 }
 .print-head{display:none;text-align:center;margin-bottom:4mm}.print-head h2{margin:0;font-size:18px}.print-head div{font-size:10px}
 </style>
@@ -151,7 +151,7 @@ function printAll(){
  for(let s=0;s<N;s++){renderTable(s);htmls.push(document.querySelector('table').outerHTML)}
  let w=window.open('','_blank');
  w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>جداول الحصص</title>
- <style>@page{size:A4 landscape;margin:7mm}body{font-family:Cairo,Arial,sans-serif}.sheet{page-break-after:always}
+ <style>@page{size:A4 landscape;margin:7mm}html,body{width:297mm;min-height:210mm;margin:0}body{font-family:Cairo,Arial,sans-serif}.sheet{page-break-after:always;width:100%;min-height:196mm;break-after:page}
  h2{text-align:center;margin:0 0 4mm}table{border-collapse:collapse;width:100%;font-size:9px}
  th,td{border:1px solid #777;padding:5px;text-align:center}th{background:#19324d;color:white}.cell{height:55px}</style></head>
  <body>${htmls.map((x,i)=>`<div class="sheet"><h2>${esc(db.school)} — ${esc(db.grade||'')} — ${esc(db.sections[i])} — ${esc(db.year)}</h2>${x}</div>`).join('')}</body></html>`);
@@ -183,7 +183,7 @@ function printMasterA3(){
  w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
  <title>جدول الدروس الأسبوعي</title>
  <style>
- @page{size:A3 landscape;margin:8mm}
+ @page{size:A3 landscape;margin:8mm}html,body{width:420mm;min-height:297mm;margin:0}
  *{box-sizing:border-box}
  body{margin:0;font-family:Cairo,Arial,sans-serif;color:#222}
  .head{display:grid;grid-template-columns:1fr 2fr 1fr;align-items:end;margin-bottom:5mm}
