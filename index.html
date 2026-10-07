@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نظام جدول الحصص الأسبوعي</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap');
+:root{--nav:#19324d;--blue:#1769aa;--light:#f4f7fb;--line:#cbd5e1;--text:#172033;--green:#16834b;--red:#c93636}
+*{box-sizing:border-box}body{margin:0;background:var(--light);color:var(--text);font-family:Cairo,Arial,sans-serif}
+.app{max-width:1500px;margin:auto;padding:16px}.card{background:#fff;border:1px solid #e1e7ef;border-radius:15px;box-shadow:0 3px 15px #0000000b;padding:16px;margin-bottom:14px}
+h1{font-size:24px;margin:0}.muted{color:#64748b;font-size:12px}.grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin-top:14px}
+label{display:block;font-size:12px;font-weight:800;margin-bottom:4px;color:#475569}
+input,select,textarea{width:100%;font:inherit;border:1px solid #d5dde8;border-radius:8px;padding:8px;background:#fff;outline:0}
+button{font:inherit;font-weight:800;border:0;border-radius:8px;padding:9px 13px;cursor:pointer;background:#e8eef5;color:var(--text)}
+button.primary{background:var(--blue);color:#fff}button.green{background:var(--green);color:#fff}button.red{background:var(--red);color:#fff}button.dark{background:var(--nav);color:#fff}
+.toolbar,.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}.tab.active{background:var(--blue);color:#fff}
+table{border-collapse:collapse;width:100%;table-layout:fixed;min-width:1050px}th,td{border:1px solid var(--line)}
+th{background:var(--nav);color:#fff;padding:8px;font-size:12px}.day{background:var(--blue)}
+td.lesson{text-align:center;background:#eef3f8;font-weight:800;width:55px}
+td.cell{height:88px;padding:4px;vertical-align:top}.cell input{border:0;border-bottom:1px solid #e3e8ee;border-radius:0;padding:4px;font-size:12px}.cell input:last-child{border-bottom:0}.cell input:focus{background:#f4f9ff}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:14px}.list{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.tag{padding:5px 8px;background:#edf2f7;border-radius:7px;font-size:12px}
+.warning{background:#fff7ed;border:1px solid #fed7aa;border-radius:9px;padding:9px;margin-top:10px;font-size:12px}
+.ok{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:9px;padding:9px;margin-top:10px;font-size:12px}
+.modal{position:fixed;inset:0;background:#0008;display:none;align-items:center;justify-content:center;padding:15px;z-index:20}.modal.show{display:flex}.modalbox{background:#fff;border-radius:15px;padding:18px;width:min(650px,100%);max-height:90vh;overflow:auto}
+.row{display:flex;gap:7px;margin:6px 0}.row>*{flex:1}
+@media(max-width:850px){.grid,.layout{grid-template-columns:1fr 1fr}}
+@media print{
+ @page{size:A4 landscape;margin:7mm}body{background:#fff}.no-print{display:none!important}.app{padding:0;max-width:none}.card{box-shadow:none;border:0;padding:0;margin:0 0 5mm}.print-head{display:block!important}table{min-width:0;font-size:9px}th{padding:5px;font-size:9px}td.cell{height:62px}.cell input{font-size:8px;padding:2px}td.lesson{width:30px}
+}
+.print-head{display:none;text-align:center;margin-bottom:4mm}.print-head h2{margin:0;font-size:18px}.print-head div{font-size:10px}
+</style>
+</head>
+<body>
+<div class="app">
+<section class="card no-print">
+<h1>📚 نظام جدول الحصص الأسبوعي</h1>
+<div class="muted">نسخة تجريبية متقدمة — ٩ شعب × ٥ أيام × ٦ دروس، مع حفظ محلي وكشف تعارض المعلمين.</div>
+<div class="grid">
+<div><label>اسم المدرسة</label><input id="school"></div>
+<div><label>العام الدراسي</label><input id="year"></div>
+<div><label>الصف</label><input id="grade"></div>
+<div><label>الشعبة</label><select id="section"></select></div>
+</div>
+<div class="toolbar">
+<button class="primary" onclick="window.print()">🖨️ طباعة الشعبة</button>
+<button onclick="printAll()">🖨️ طباعة جميع الشعب</button>
+<button class="green" onclick="openModal('manage')">⚙️ المواد والمعلمون</button>
+<button onclick="copySection()">📋 نسخ الجدول</button>
+<button onclick="pasteSection()">📌 لصق الجدول</button>
+<button onclick="backup()">💾 نسخة احتياطية</button>
+<button onclick="document.getElementById('file').click()">↩️ استعادة</button>
+<button class="red" onclick="clearSection()">🗑️ مسح الشعبة</button>
+<input id="file" type="file" accept=".json" hidden onchange="restore(event)">
+</div>
+</section>
+
+<section class="card">
+<div class="print-head"><h2 id="phSchool"></h2><div id="phInfo"></div></div>
+<div class="tabs no-print" id="tabs"></div>
+<div style="overflow:auto"><table>
+<thead><tr><th>الدرس</th><th class="day">الأحد</th><th class="day">الاثنين</th><th class="day">الثلاثاء</th><th class="day">الأربعاء</th><th class="day">الخميس</th></tr></thead>
+<tbody id="body"></tbody>
+</table></div>
+<div id="conflicts"></div>
+<div class="muted no-print" style="margin-top:8px">اكتب المادة واسم المعلم مباشرة داخل الخلية. عند كتابة اسم المادة يمكنك استخدام القائمة المقترحة، لكن التعديل اليدوي متاح دائماً.</div>
+</section>
+
+<section class="card no-print layout">
+<div>
+<h3>المواد</h3><div id="subjects" class="list"></div>
+</div>
+<div>
+<h3>المعلمون</h3><div id="teachers" class="list"></div>
+</div>
+</section>
+</div>
+
+<div class="modal" id="modal"><div class="modalbox">
+<h2 id="modalTitle">إدارة المواد والمعلمين</h2>
+<div id="modalContent"></div>
+<div class="toolbar"><button class="primary" onclick="closeModal()">إغلاق</button></div>
+</div></div>
+
+<script>
+const DAYS=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس'], L=6, N=9;
+const KEY='weekly_schedule_pro_v2';
+const defaults=['الرياضيات','اللغة العربية','اللغة الإنكليزية','العلوم','الاجتماعيات','التربية الإسلامية','التربية الفنية','الرياضة'];
+const names=['أ','ب','ج','د','هـ','و','ز','ح','ط'];
+let db=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ school:'',year:'٢٠٢٦ - ٢٠٢٧',grade:'الصف الخامس',
+ sections:names.map(x=>'الشعبة '+x), subjects:[...defaults], teachers:[],
+ tables:{}, clipboard:null
+};
+const blank=()=>Array.from({length:L},()=>Array.from({length:5},()=>({subject:'',teacher:''})));
+function ensure(s){if(!db.tables[s])db.tables[s]=blank()}
+function save(){localStorage.setItem(KEY,JSON.stringify(db))}
+function val(id){return document.getElementById(id).value}
+function esc(x){return String(x??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function render(){
+ document.getElementById('school').value=db.school;document.getElementById('year').value=db.year;document.getElementById('grade').value=db.grade;
+ let sel=document.getElementById('section'), old=+sel.value||0;
+ sel.innerHTML=db.sections.map((x,i)=>`<option value="${i}">${esc(x)}</option>`).join('');sel.value=Math.min(old,N-1);
+ renderTabs();renderTable(+sel.value);renderLists();
+}
+function renderTabs(){let s=+val('section');document.getElementById('tabs').innerHTML=db.sections.map((x,i)=>`<button class="tab ${i===s?'active':''}" onclick="choose(${i})">${esc(x)}</button>`).join('')}
+function choose(i){document.getElementById('section').value=i;renderTabs();renderTable(i)}
+function renderTable(s){
+ ensure(s);let t=db.tables[s];
+ document.getElementById('body').innerHTML=t.map((r,ri)=>`<tr><td class="lesson">الدرس ${ri+1}</td>${r.map((c,di)=>`<td class="cell">
+ <input list="subjectList" placeholder="المادة" value="${esc(c.subject)}" onchange="setCell(${s},${ri},${di},'subject',this.value)">
+ <input list="teacherList" placeholder="اسم المعلم" value="${esc(c.teacher)}" onchange="setCell(${s},${ri},${di},'teacher',this.value)">
+ </td>`).join('')}</tr>`).join('');
+ document.body.insertAdjacentHTML('beforeend',`<datalist id="subjectList">${db.subjects.map(x=>`<option value="${esc(x)}">`).join('')}</datalist><datalist id="teacherList">${db.teachers.map(x=>`<option value="${esc(x)}">`).join('')}</datalist>`);
+ document.getElementById('phSchool').textContent=db.school||'اسم المدرسة';document.getElementById('phInfo').textContent=`${db.grade} — ${db.sections[s]} — ${db.year}`;
+ checkConflicts();
+}
+function setCell(s,r,d,k,v){ensure(s);db.tables[s][r][d][k]=v.trim();save();checkConflicts()}
+function checkConflicts(){
+ let s=+val('section'), t=db.tables[s]||blank(), found=[];
+ for(let day=0;day<5;day++)for(let lesson=0;lesson<L;lesson++){let teacher=t[lesson][day].teacher.trim();if(!teacher)continue;
+  for(let os=0;os<N;os++)if(os!==s){ensure(os);let c=db.tables[os][lesson][day];if(c.teacher.trim()&&c.teacher.trim()===teacher)found.push(`المعلم «${teacher}» مكرر في ${DAYS[day]}، الدرس ${lesson+1} مع ${db.sections[os]}.`)}
+ }
+ let el=document.getElementById('conflicts');el.innerHTML=found.length?`<div class="warning">⚠️ ${[...new Set(found)].join('<br>')}</div>`:`<div class="ok">✓ لا يوجد تعارض معلن للمعلمين في جدول الشعبة الحالية.</div>`;
+}
+function renderLists(){document.getElementById('subjects').innerHTML=db.subjects.map(x=>`<span class="tag">${esc(x)}</span>`).join('');document.getElementById('teachers').innerHTML=db.teachers.map(x=>`<span class="tag">${esc(x)}</span>`).join('')}
+function openModal(mode){
+ document.getElementById('modal').classList.add('show');
+ document.getElementById('modalContent').innerHTML=`
+ <h3>المواد</h3><div class="row"><input id="newSub" placeholder="اسم المادة"><button onclick="addSubject()">إضافة</button></div>
+ <div class="list">${db.subjects.map((x,i)=>`<span class="tag">${esc(x)} <button onclick="delSubject(${i})">×</button></span>`).join('')}</div>
+ <hr><h3>المعلمون</h3><div class="row"><input id="newTea" placeholder="اسم المعلم"><button onclick="addTeacher()">إضافة</button></div>
+ <div class="list">${db.teachers.map((x,i)=>`<span class="tag">${esc(x)} <button onclick="delTeacher(${i})">×</button></span>`).join('')}</div>
+ <hr><h3>أسماء الشعب</h3>${db.sections.map((x,i)=>`<div class="row"><input value="${esc(x)}" onchange="db.sections[${i}]=this.value;save();render()"></div>`).join('')}`;
+}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+function addSubject(){let x=val('newSub').trim();if(x&&!db.subjects.includes(x))db.subjects.push(x);save();openModal();render()}
+function addTeacher(){let x=val('newTea').trim();if(x&&!db.teachers.includes(x))db.teachers.push(x);save();openModal();render()}
+function delSubject(i){db.subjects.splice(i,1);save();openModal();render()}
+function delTeacher(i){db.teachers.splice(i,1);save();openModal();render()}
+function clearSection(){let s=+val('section');if(confirm('مسح جميع حصص '+db.sections[s]+'؟')){db.tables[s]=blank();save();renderTable(s)}}
+function copySection(){let s=+val('section');ensure(s);db.clipboard=JSON.parse(JSON.stringify(db.tables[s]));save();alert('تم نسخ جدول الشعبة الحالية.')}
+function pasteSection(){let s=+val('section');if(!db.clipboard)return alert('لا توجد نسخة من جدول منسوخ.');db.tables[s]=JSON.parse(JSON.stringify(db.clipboard));save();renderTable(s);alert('تم لصق الجدول.')}
+function backup(){let blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='نسخة_جدول_الحصص.json';a.click()}
+function restore(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{db=JSON.parse(r.result);save();render();alert('تمت الاستعادة بنجاح.')}catch{alert('الملف غير صالح.')}};r.readAsText(f)}
+function printAll(){let old=+val('section');let htmls=[];for(let s=0;s<N;s++){renderTable(s);htmls.push(document.querySelector('table').outerHTML)}let w=window.open('','_blank');w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>جداول الحصص</title><style>@page{size:A4 landscape;margin:7mm}body{font-family:Arial}.sheet{page-break-after:always}h2{text-align:center}table{border-collapse:collapse;width:100%;font-size:9px}th,td{border:1px solid #888;padding:5px;text-align:center}th{background:#19324d;color:white}.cell{height:55px}</style></head><body>${htmls.map((x,i)=>`<div class="sheet"><h2>${esc(db.school)} — ${esc(db.grade)} — ${esc(db.sections[i])}</h2>${x}</div>`).join('')}</body></html>`);w.document.close();w.focus();w.print();document.getElementById('section').value=old;render()}
+['school','year','grade'].forEach(id=>document.getElementById(id).addEventListener('input',e=>{db[id]=e.target.value;save();document.getElementById('phSchool').textContent=db.school||'اسم المدرسة'}));
+document.getElementById('section').addEventListener('change',e=>{renderTabs();renderTable(+e.target.value)});
+render();
+</script>
+</body></html>
