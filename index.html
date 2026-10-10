@@ -182,33 +182,33 @@ function printMaster(size='A3'){
  const w=window.open('','_blank');
  if(!w){alert('يرجى السماح بفتح النوافذ المنبثقة للطباعة.');return}
  const pageSize = size==='A4' ? 'A4' : 'A3';
- const pageWidth = size==='A4' ? '297mm' : '420mm';
- const pageHeight = size==='A4' ? '210mm' : '297mm';
+ const pageWidth = size==='A4' ? '291mm' : '410mm';
+ const pageHeight = size==='A4' ? '204mm' : '287mm';
  const margin = size==='A4' ? '3mm' : '5mm';
- const cssPage = `@page{size:${pageSize} landscape;margin:${margin}}html,body{width:${pageWidth};min-height:${pageHeight};margin:0}`;
+ const cssPage = `@page{size:${pageSize} landscape;margin:${margin}}html,body{width:${pageWidth};height:${pageHeight};margin:0}`;
  w.document.write(`<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
  <title>جدول الدروس الأسبوعي</title>
  <style>
  ${cssPage}
  *{box-sizing:border-box}
- @media print{html,body{height:${pageHeight};max-height:${pageHeight};overflow:hidden!important}.head,table,.footer{break-inside:avoid;page-break-inside:avoid}table{break-before:avoid;break-after:avoid}}
+ @media print{html,body{width:${pageWidth};height:${pageHeight};min-height:0;max-height:${pageHeight};overflow:hidden!important}.head,table,.footer{break-inside:avoid;page-break-inside:avoid}table{break-before:avoid;break-after:avoid}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
  html,body{padding:0!important;margin:0!important}body{font-family:Cairo,Arial,sans-serif;color:#222;overflow:hidden}
  .head{display:grid;grid-template-columns:1fr 2fr 1fr;align-items:end;margin-bottom:${size==='A4'?'2mm':'3mm'}}
  .right{text-align:right;font-size:${size==='A4'?'8px':'11px'};line-height:1.2}.center{text-align:center}
  .center h1{margin:0;font-size:${size==='A4'?'16px':'22px'};color:#9b3030}.center .sub{font-size:${size==='A4'?'8px':'11px'};font-weight:700}
  .left{text-align:left;font-size:${size==='A4'?'8px':'11px'};line-height:1.2}
- table{border-collapse:collapse;width:100%;max-width:100%;table-layout:fixed;font-size:${size==='A4'?'6.5px':'9px'}}
+ table{border-collapse:collapse;width:100%;max-width:100%;table-layout:fixed;font-size:${size==='A4'?'7px':'10px'}}
  th,td{border:1px solid #555;text-align:center;vertical-align:middle}
  thead th{background:#f4f4f4;font-weight:800;padding:${size==='A4'?'1.5px':'3px'};line-height:1.0;white-space:nowrap}
  thead .classHead{background:#eee;font-size:${size==='A4'?'7.5px':'10px'}}
  thead .subHead{font-size:${size==='A4'?'6.5px':'8.5px'}}
- tbody tr{height:${size==='A4'?'5.5mm':'8.4mm'};max-height:${size==='A4'?'5.5mm':'8.4mm'}}
- td{height:${size==='A4'?'5.5mm':'8.4mm'};max-height:${size==='A4'?'5.5mm':'8.4mm'};padding:${size==='A4'?'1px':'2px'};overflow:hidden;white-space:nowrap}
+ tbody tr{height:${size==='A4'?'5.1mm':'8.0mm'};max-height:${size==='A4'?'5.1mm':'8.0mm'}}
+ td{height:${size==='A4'?'5.1mm':'8.0mm'};max-height:${size==='A4'?'5.1mm':'8.0mm'};padding:${size==='A4'?'1px':'2px'};overflow:hidden;white-space:nowrap}
  td.day{width:9mm;background:#fafafa;font-weight:800;color:#9b3030}
  td.lesson{width:6mm;font-weight:800;background:#fafafa}
- td.subject{font-weight:800;font-size:${size==='A4'?'6.5px':'10px'};line-height:1.05;overflow:hidden}.teacher{font-size:${size==='A4'?'6px':'9px'};line-height:1.05;font-weight:700;overflow:hidden}
+ td.subject{font-weight:800;font-size:${size==='A4'?'7px':'10px'};line-height:1.05;overflow:hidden}.teacher{font-size:${size==='A4'?'6.5px':'9px'};line-height:1.05;font-weight:700;overflow:hidden}
  tbody tr:nth-child(6n+1) td{border-top:2px solid #a83a3a}
- .footer{margin-top:${size==='A4'?'0.5mm':'3mm'};font-size:${size==='A4'?'6px':'9px'};display:flex;justify-content:space-between}
+ .footer{margin-top:${size==='A4'?'0.5mm':'3mm'};font-size:${size==='A4'?'6.5px':'9px'};display:flex;justify-content:space-between}
  </style></head><body>
  <div class="head">
    <div class="right"><b>مدرسة:</b> ${school}<br><b>العام الدراسي:</b> ${year}</div>
